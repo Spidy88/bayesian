@@ -27,13 +27,19 @@ public interface IAccuracyCalculator {
 	public double calculateAccuracy(List<IDataRow<?>> dataRows, boolean cleanSlate);
 	
 	/**
-	 * Get the number of correct classifications
+	 * Get the last accuracy calculated.
+	 * @return The last accuracy calculated.
+	 */
+	public double getAccuracy();
+	
+	/**
+	 * Get the number of correct classifications from the last calculation.
 	 * @return The number of correct classifications
 	 */
 	public int getCorrectCount();
 	
 	/**
-	 * Get the number of incorrect classifications
+	 * Get the number of incorrect classifications from the last calculation.
 	 * @return The number of incorrect classifications
 	 */
 	public int getIncorrectCount();
