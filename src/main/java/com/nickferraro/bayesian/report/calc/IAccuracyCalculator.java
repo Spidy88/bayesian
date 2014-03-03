@@ -9,14 +9,15 @@ import com.nickferraro.bayesian.IDataRow;
  * a bayesian system in classifying a list of data rows.
  * @author Nick Ferraro
  *
+ * @param <T> The category data type the bayesian system will be using
  */
-public interface IAccuracyCalculator {
+public interface IAccuracyCalculator<T> {
 	/**
 	 * Classify the list of data rows and calculate the accuracy of classifying the row category.
 	 * @param dataRows A list of data rows to classify and use in a clean set of calculations.
 	 * @return The accuracy of classifying this data set
 	 */
-	public double calculateAccuracy(List<IDataRow<?>> dataRows);
+	public double calculateAccuracy(List<IDataRow<T>> dataRows);
 	
 	/**
 	 * Classify the list of data rows and calculate the accuracy of classifying the row category.
@@ -24,7 +25,7 @@ public interface IAccuracyCalculator {
 	 * @param cleanSlate Whether or not to aggregate previous calculations with this new data set or start from a clean slate. Defaults to TRUE.
 	 * @return The accuracy of classifying this data set
 	 */
-	public double calculateAccuracy(List<IDataRow<?>> dataRows, boolean cleanSlate);
+	public double calculateAccuracy(List<IDataRow<T>> dataRows, boolean cleanSlate);
 	
 	/**
 	 * Get the last accuracy calculated.

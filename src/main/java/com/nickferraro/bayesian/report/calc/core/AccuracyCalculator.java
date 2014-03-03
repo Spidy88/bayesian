@@ -16,13 +16,14 @@ import com.nickferraro.bayesian.report.calc.IAccuracyCalculator;
  * into a single accuracy calculation. This implementation does not use the IDataRow id, nor does
  * it verify that duplicate ids are only counted once.
  * @author Nick Ferraro
- *
+ * 
+ * @param <T> The category data type the bayesian system will be using
  */
-public class AccuracyCalculator implements IAccuracyCalculator {
+public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 	protected ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 	protected Lock readLock = readWriteLock.readLock();
 	protected Lock writeLock = readWriteLock.writeLock();
-	private IBayesianSystem<?> bayesianSystem;
+	private IBayesianSystem<T> bayesianSystem;
 	private int total = 0;
 	private int correct = 0;
 	
@@ -31,7 +32,7 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 	 * @param bayesianSystem The IBayesianSystem to use for classification. Must not be NULL.
 	 * @throws InvalidParameterException Thrown when IBayesianSystem is NULL.
 	 */
-	public AccuracyCalculator(IBayesianSystem<?> bayesianSystem) throws InvalidParameterException {
+	public AccuracyCalculator(IBayesianSystem<T> bayesianSystem) throws InvalidParameterException {
 		// DRY: Set the bayesian system and reset counts
 		setBayesianSystem(bayesianSystem);
 		resetCounts();
@@ -42,7 +43,7 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 	 * @param bayesianSystem The IBayesianSystem to use for classification. Must not be NULL.
 	 * @throws InvalidParameterException Thrown when IBayesianSystem is NULL.
 	 */
-	public void setBayesianSystem(IBayesianSystem<?> bayesianSystem) throws InvalidParameterException {
+	public void setBayesianSystem(IBayesianSystem<T> bayesianSystem) throws InvalidParameterException {
 		// Validate the bayesianSystem parameter
 		if( bayesianSystem == null ) {
 			throw new InvalidParameterException("AccuracyCalculator cannot set a NULL IBayesianSystem");
@@ -60,13 +61,13 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 	}
 	
 	@Override
-	public double calculateAccuracy(List<IDataRow<?>> dataRows) {
+	public double calculateAccuracy(List<IDataRow<T>> dataRows) {
 		// DRY: Call calculateAccuracy with cleanSlate = TRUE
 		return calculateAccuracy(dataRows, true);
 	}
 
 	@Override
-	public double calculateAccuracy(List<IDataRow<?>> dataRows, boolean cleanSlate) {
+	public double calculateAccuracy(List<IDataRow<T>> dataRows, boolean cleanSlate) {
 		// Lock
 		writeLock.lock();
 		
@@ -154,7 +155,7 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 	 * @param cleanSlate Whether or not to aggregate calculations or start from a clean slate
 	 * @return The current accuracy of the bayesian system
 	 */
-	private double _calculateAccuracy(List<IDataRow<?>> dataRows, boolean cleanSlate) {
+	private double _calculateAccuracy(List<IDataRow<T>> dataRows, boolean cleanSlate) {
 		// Reset our counts if cleanSlate is TRUE
 		if( cleanSlate ) {
 			_resetCounts();
@@ -166,20 +167,21 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 		}
 		
 		// Iterate over data rows
-		for(IDataRow<?> dataRow : dataRows) {
+		for(IDataRow<T> dataRow : dataRows) {
 			// If a row is null, skip it
 			if( dataRow == null ) {
 				continue;
 			}
 			
 			// Get the first classification and check if it is correct. NULL classifications are ignored.
-			IClassification<?> classification = helperGetClassification(bayesianSystem.classifyRow(dataRow));
-			if( classification != null ) {
+			List<IClassification<T>> classifications = bayesianSystem.classifyRow(dataRow);
+			if( classifications != null && classifications.size() > 0 ) {
+				IClassification<T> classification = classifications.get(0);
 				// Increase the total rows calculated
 				++total;
 				
 				// If the classification category matches the data row category, increase the correct count
-				if( classification.getCategory().equals(dataRow.getCategory()) ) {
+				if( classification != null && classification.getCategory().equals(dataRow.getCategory()) ) {
 					++correct;
 				}
 			}
@@ -203,14 +205,5 @@ public class AccuracyCalculator implements IAccuracyCalculator {
 	private void _resetCounts() {
 		total = 0;
 		correct = 0;
-	}
-	
-	/**
-	 * A helper method for handling generic type inference. Gets the first element of the list.
-	 * @param l The generic list to get the first element from.
-	 * @return The first element of the list or NULL if the list is NULL or empty
-	 */
-	private <T> IClassification<T> helperGetClassification(List<IClassification<T>> l) {
-		return l == null || l.size() < 1 ? null : l.get(0);
 	}
 }
