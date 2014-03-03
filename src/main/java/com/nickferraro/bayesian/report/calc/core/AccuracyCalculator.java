@@ -124,7 +124,7 @@ public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 	@Override
 	public int getTotalCount() {
 		// Lock
-		readLock.unlock();
+		readLock.lock();
 		
 		try {
 			return total;
@@ -196,7 +196,7 @@ public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 	 * @return The last calculated accuracy
 	 */
 	private double _getAccuracy() {
-		return (double)correct / (double)total;
+		return total == 0 ? 0.0 : ((double)correct / (double)total);
 	}
 	
 	/**
