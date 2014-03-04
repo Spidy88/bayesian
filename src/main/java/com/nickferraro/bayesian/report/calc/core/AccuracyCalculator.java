@@ -20,12 +20,12 @@ import com.nickferraro.bayesian.report.calc.IAccuracyCalculator;
  * @param <T> The category data type the bayesian system will be using
  */
 public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
-	protected ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-	protected Lock readLock = readWriteLock.readLock();
-	protected Lock writeLock = readWriteLock.writeLock();
-	private IBayesianSystem<T> bayesianSystem;
-	private int total = 0;
-	private int correct = 0;
+	protected final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+	protected final Lock readLock = readWriteLock.readLock();
+	protected final Lock writeLock = readWriteLock.writeLock();
+	protected IBayesianSystem<T> bayesianSystem;
+	protected int total = 0;
+	protected int correct = 0;
 	
 	/**
 	 * Constructor for AccuracyCalculator. Requires a non-null IBayesianSystem parameter.
@@ -155,7 +155,7 @@ public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 	 * @param cleanSlate Whether or not to aggregate calculations or start from a clean slate
 	 * @return The current accuracy of the bayesian system
 	 */
-	private double _calculateAccuracy(List<IDataRow<T>> dataRows, boolean cleanSlate) {
+	protected double _calculateAccuracy(List<IDataRow<T>> dataRows, boolean cleanSlate) {
 		// Reset our counts if cleanSlate is TRUE
 		if( cleanSlate ) {
 			_resetCounts();
@@ -195,14 +195,14 @@ public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 	 * Private thread-unsafe method for calculating the accuracy
 	 * @return The last calculated accuracy
 	 */
-	private double _getAccuracy() {
+	protected double _getAccuracy() {
 		return total == 0 ? 0.0 : ((double)correct / (double)total);
 	}
 	
 	/**
 	 * Private thread-unsafe method for reseting the calculations and counts
 	 */
-	private void _resetCounts() {
+	protected void _resetCounts() {
 		total = 0;
 		correct = 0;
 	}
