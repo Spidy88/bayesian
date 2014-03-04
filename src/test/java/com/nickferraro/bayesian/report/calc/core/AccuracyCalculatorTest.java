@@ -163,6 +163,57 @@ public class AccuracyCalculatorTest {
 		assertThat(calculator.getTotalCount(), is(6));
 	}
 	
+	@Test
+	public void testCalculateAccuracy_AggregateCounts_Null() {
+		List<IDataRow<String>> mockDataRows = createMockDataRows();
+		
+		List<IClassification<String>> classificationList1 = createClassificationList(CATEGORY_1);
+		List<IClassification<String>> classificationList2 = createClassificationList(CATEGORY_1);		
+		List<IClassification<String>> classificationList3 = createClassificationList(CATEGORY_3);
+		
+		when(mockSystem.classifyRow(mockRow1)).thenReturn(classificationList1);
+		when(mockSystem.classifyRow(mockRow2)).thenReturn(classificationList2);
+		when(mockSystem.classifyRow(mockRow3)).thenReturn(classificationList3);
+		
+		calculator.calculateAccuracy(mockDataRows);
+		assumeThat(calculator.getCorrectCount(), is(2));
+		assumeThat(calculator.getIncorrectCount(), is(1));
+		assumeThat(calculator.getTotalCount(), is(3));
+		
+		double accuracy = calculator.calculateAccuracy(null, false);
+		assertEquals(2.0/3.0, accuracy, 0.0001);
+		assertEquals(2.0/3.0, calculator.getAccuracy(), 0.0001);
+		assertThat(calculator.getCorrectCount(), is(2));
+		assertThat(calculator.getIncorrectCount(), is(1));
+		assertThat(calculator.getTotalCount(), is(3));
+	}
+	
+	@Test
+	public void testCalculateAccuracy_AggregateCounts_Empty() {
+		List<IDataRow<String>> mockDataRows = createMockDataRows();
+		
+		List<IClassification<String>> classificationList1 = createClassificationList(CATEGORY_1);
+		List<IClassification<String>> classificationList2 = createClassificationList(CATEGORY_1);		
+		List<IClassification<String>> classificationList3 = createClassificationList(CATEGORY_3);
+		
+		when(mockSystem.classifyRow(mockRow1)).thenReturn(classificationList1);
+		when(mockSystem.classifyRow(mockRow2)).thenReturn(classificationList2);
+		when(mockSystem.classifyRow(mockRow3)).thenReturn(classificationList3);
+		
+		calculator.calculateAccuracy(mockDataRows);
+		assumeThat(calculator.getCorrectCount(), is(2));
+		assumeThat(calculator.getIncorrectCount(), is(1));
+		assumeThat(calculator.getTotalCount(), is(3));
+		
+		List<IDataRow<String>> emptyDataRows = Collections.emptyList();
+		double accuracy = calculator.calculateAccuracy(emptyDataRows, false);
+		assertEquals(2.0/3.0, accuracy, 0.0001);
+		assertEquals(2.0/3.0, calculator.getAccuracy(), 0.0001);
+		assertThat(calculator.getCorrectCount(), is(2));
+		assertThat(calculator.getIncorrectCount(), is(1));
+		assertThat(calculator.getTotalCount(), is(3));
+	}
+	
 	@SuppressWarnings("unchecked")
 	private List<IDataRow<String>> createMockDataRows() {
 		List<IDataRow<String>> mockDataRows = new ArrayList<IDataRow<String>>();

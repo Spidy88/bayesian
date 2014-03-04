@@ -163,7 +163,7 @@ public class AccuracyCalculator<T> implements IAccuracyCalculator<T> {
 		
 		// Return 0% accuracy for null dataRows
 		if( dataRows == null ) {
-			return 0;
+			return _getAccuracy();
 		}
 		
 		// Iterate over data rows
