@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.nickferraro.bayesian.IDataRow;
+import com.nickferraro.bayesian.model.hashed.ILink;
 
 /**
  * This interface represents a model for Bayesian calculations.
@@ -108,4 +109,10 @@ public interface IBayesianModel<T> {
 	 * @return A set of unique words. This will never be NULL.
 	 */
 	public Set<String> getUniqueWords();
+	
+	/**
+	 * Get a list of category to word links in this model.
+	 * @return A list of links. This will never be NULL.
+	 */
+	public List<ILink<T>> getLinks();
 }

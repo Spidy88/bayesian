@@ -1,6 +1,7 @@
 package com.nickferraro.bayesian.model.hashed;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +28,8 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 	private Lock readLock = readWriteLock.readLock();
 	private Lock writeLock = readWriteLock.writeLock();
 	
-	private HashMap<T, CategoryNode<T>> categoryNodes = new HashMap<T, CategoryNode<T>>();
-	private HashMap<String, WordNode<T>> wordNodes = new HashMap<String, WordNode<T>>();
+	private final HashMap<T, CategoryNode<T>> categoryNodes = new HashMap<T, CategoryNode<T>>();
+	private final HashMap<String, WordNode<T>> wordNodes = new HashMap<String, WordNode<T>>();
 	private int totalRows = 0;
 	
 	/**
@@ -287,6 +288,33 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 			// Get number of unique category nodes
 			return wordNodes.keySet();
 		} finally {	
+			// Unlock
+			readLock.unlock();
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * This method is thread-safe.
+	 */
+	@Override
+	public List<ILink<T>> getLinks() {
+		// Lock
+		readLock.lock();
+		
+		try {
+			// Create a list to aggregate links
+			List<ILink<T>> aggregatedLinks = new ArrayList<ILink<T>>();
+			
+			// Iterate over category nodes and aggregate links
+			Collection<CategoryNode<T>> categoryNodes = this.categoryNodes.values();
+			for(CategoryNode<T> categoryNode : categoryNodes ) {
+				Collection<Link<T>> links = categoryNode.getLinks();
+				aggregatedLinks.addAll(links);
+			}
+			
+			return aggregatedLinks;
+		} finally {
 			// Unlock
 			readLock.unlock();
 		}
