@@ -19,15 +19,15 @@ import com.nickferraro.bayesian.IClassification;
 import com.nickferraro.bayesian.IDataRow;
 
 public class AccuracyCalculatorTest {
-	private static final String CATEGORY_1 = "cat1";
-	private static final String CATEGORY_2 = "cat2";
-	private static final String CATEGORY_3 = "cat3";
+	protected static final String CATEGORY_1 = "cat1";
+	protected static final String CATEGORY_2 = "cat2";
+	protected static final String CATEGORY_3 = "cat3";
 	
-	private AccuracyCalculator<String> calculator;
-	private IBayesianSystem<String> mockSystem;
-	private IDataRow<String> mockRow1;
-	private IDataRow<String> mockRow2;
-	private IDataRow<String> mockRow3;
+	protected AccuracyCalculator<String> calculator;
+	protected IBayesianSystem<String> mockSystem;
+	protected IDataRow<String> mockRow1;
+	protected IDataRow<String> mockRow2;
+	protected IDataRow<String> mockRow3;
 	
 	@SuppressWarnings("unchecked")
 	@Before
@@ -215,7 +215,7 @@ public class AccuracyCalculatorTest {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<IDataRow<String>> createMockDataRows() {
+	protected List<IDataRow<String>> createMockDataRows() {
 		List<IDataRow<String>> mockDataRows = new ArrayList<IDataRow<String>>();
 		mockRow1 = mock(IDataRow.class);
 		mockRow2 = mock(IDataRow.class);
@@ -232,7 +232,7 @@ public class AccuracyCalculatorTest {
 		return mockDataRows;
 	}
 	
-	private List<IClassification<String>> createClassificationList(String category) {
+	protected List<IClassification<String>> createClassificationList(String category) {
 		List<IClassification<String>> classifications = new ArrayList<IClassification<String>>();
 		
 		@SuppressWarnings("unchecked")
