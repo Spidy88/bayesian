@@ -2,6 +2,7 @@ package com.nickferraro.bayesian.model.hashed;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -11,6 +12,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -468,6 +470,61 @@ public class BayesianModelTest {
 		assertThat(bayesianModel.removeCategory(TestCategory.CATEGORY1), is(nullValue()));
 	}
 	
+	@Test
+	public void testRemoveCategories() {
+		@SuppressWarnings("unchecked")
+		List<IDataRow<TestCategory>> dataRows = Arrays.asList(
+				createMockRow(TestCategory.CATEGORY1, "a", "b", "c"),
+				createMockRow(TestCategory.CATEGORY2, "a", "d"),
+				createMockRow(TestCategory.CATEGORY1, "b", "c", "e"));
+		List<TestCategory> categoriesToRemove = new ArrayList<TestCategory>();
+		categoriesToRemove.add(TestCategory.CATEGORY1);
+		categoriesToRemove.add(null);
+		categoriesToRemove.add(TestCategory.CATEGORY3);
+		
+		assumeThat(bayesianModel.addDataRows(dataRows), is(3));
+		List<TestCategory> removedCategories = bayesianModel.removeCategories(categoriesToRemove);
+		assertThat(removedCategories, is(notNullValue()));
+		assertThat(removedCategories.size(), is(1));
+		assertThat(bayesianModel.getTotalRows(), is(1));
+		assertThat(bayesianModel.getUniqueCategories().size(), is(1));
+		assertThat(bayesianModel.getUniqueWords().size(), is(2));
+	}
+	
+	@Test
+	public void testRemoveCategories_NullList() {
+		List<TestCategory> removedCategories = bayesianModel.removeCategories(null);
+		assertThat(removedCategories, is(notNullValue()));
+		assertThat(removedCategories.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void testRemoveCategories_EmptyList() {
+		List<TestCategory> emptyCategories = Collections.emptyList();
+		List<TestCategory> removedCategories = bayesianModel.removeCategories(emptyCategories);
+		assertThat(removedCategories, is(notNullValue()));
+		assertThat(removedCategories.isEmpty(), is(true));
+	}
+	
+	@Test
+	public void testGetLinks() {
+		@SuppressWarnings("unchecked")
+		List<IDataRow<TestCategory>> dataRows = Arrays.asList(
+				createMockRow(TestCategory.CATEGORY1, "a", "b", "c"),
+				createMockRow(TestCategory.CATEGORY2, "a", "d"),
+				createMockRow(TestCategory.CATEGORY1, "b", "c", "e"));
+		assumeThat(bayesianModel.addDataRows(dataRows), is(3));
+		List<ILink<TestCategory>> links = bayesianModel.getLinks();
+		assertThat(links, is(notNullValue()));
+		assertThat(links.size(), is(6));
+		assertTrue(hasLink(TestCategory.CATEGORY1, "a", 1, links));
+		assertTrue(hasLink(TestCategory.CATEGORY1, "b", 2, links));
+		assertTrue(hasLink(TestCategory.CATEGORY1, "c", 2, links));
+		assertTrue(hasLink(TestCategory.CATEGORY1, "e", 1, links));
+		assertTrue(hasLink(TestCategory.CATEGORY2, "a", 1, links));
+		assertTrue(hasLink(TestCategory.CATEGORY2, "d", 1, links));
+	}
+	
 	private static void assertBayesianModelUnchanged(BayesianModel<TestCategory> bayesianModel) {
 		assertThat(bayesianModel.getTotalRows(), is(0));
 		assertThat(bayesianModel.getUniqueCategories().size(), is(0));
@@ -487,6 +544,14 @@ public class BayesianModelTest {
 		assertThat(bayesianModel.getTotalRows(), is(1));
 		assertBayesianModelCategoriesUpdated(bayesianModel);
 		assertBayesianModelWordsUpdated(bayesianModel);
+	}
+	private static boolean hasLink(TestCategory category, String word, int weight, List<ILink<TestCategory>> links) {
+		for(ILink<TestCategory> link : links) {
+			if( category.equals(link.getCategory()) && word.equals(link.getWord()) && weight == link.getWeight() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private IDataRow<TestCategory> createMockRow() {
