@@ -129,6 +129,9 @@ public class ConfusionMatrix<T> extends AccuracyCalculator<T> implements IConfus
 	@Override
 	protected void _resetCounts() {
 		super._resetCounts();
-		matrix.clear();
+		// During construction, matrix is NULL
+		if( matrix != null ) {
+			matrix.clear();
+		}
 	}
 }
