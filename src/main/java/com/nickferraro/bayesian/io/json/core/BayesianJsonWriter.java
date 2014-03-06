@@ -1,4 +1,4 @@
-package com.nickferraro.bayesian.io.json;
+package com.nickferraro.bayesian.io.json.core;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -11,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.nickferraro.bayesian.io.IBayesianWriter;
+import com.nickferraro.bayesian.io.json.IBayesianJsonWriter;
 import com.nickferraro.bayesian.model.IBayesianModel;
 import com.nickferraro.bayesian.model.hashed.ILink;
 
@@ -21,7 +21,7 @@ import com.nickferraro.bayesian.model.hashed.ILink;
  * @author Nick Ferraro
  *
  */
-public class BayesianJsonWriter implements IBayesianWriter {
+public class BayesianJsonWriter implements IBayesianJsonWriter {
 	public static final String KEY_ROWS_COUNT = "rows-count";
 	public static final String KEY_UNIQUE_CATEGORIES_COUNT = "unique-categories-count";
 	public static final String KEY_UNIQUE_WORDS_COUNT = "unique-words-count";
@@ -168,5 +168,10 @@ public class BayesianJsonWriter implements IBayesianWriter {
 	@Override
 	public synchronized void close() throws IOException {
 		writer.close();
+	}
+	
+	@Override
+	public synchronized JSONObject getJsonObject() {
+		return this.bayesianObject;
 	}
 }
