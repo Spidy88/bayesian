@@ -1,6 +1,7 @@
 package com.nickferraro.bayesian.io.json.core;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,8 +124,54 @@ public class BayesianJsonWriterTest {
 	}
 	
 	@Test
-	public void testWriteCategories() {
-		
+	public void testWriteCategories_Null() {
+		when(mockModel.getUniqueCategories()).thenReturn(null);
+		JSONArray categoriesArray = writer.writeCategoriesArray(mockModel);
+		assertThat(categoriesArray, is(notNullValue()));
+		assertThat(categoriesArray.length(), is(0));
+	}
+	
+	@Test
+	public void testWriteCategories_Empty() {
+		Set<String> emptySet = Collections.emptySet();
+		when(mockModel.getUniqueCategories()).thenReturn(emptySet);
+		JSONArray categoriesArray = writer.writeCategoriesArray(mockModel);
+		assertThat(categoriesArray, is(notNullValue()));
+		assertThat(categoriesArray.length(), is(0));
+	}
+	
+	@Test
+	public void testWriteWords_Null() {
+		when(mockModel.getUniqueWords()).thenReturn(null);
+		JSONArray wordsArray = writer.writeWordsArray(mockModel);
+		assertThat(wordsArray, is(notNullValue()));
+		assertThat(wordsArray.length(), is(0));
+	}
+	
+	@Test
+	public void testWriteWords_Empty() {
+		Set<String> emptySet = Collections.emptySet();
+		when(mockModel.getUniqueWords()).thenReturn(emptySet);
+		JSONArray wordsArray = writer.writeWordsArray(mockModel);
+		assertThat(wordsArray, is(notNullValue()));
+		assertThat(wordsArray.length(), is(0));
+	}
+	
+	@Test
+	public void testWriteLinks_Null() {
+		when(mockModel.getLinks()).thenReturn(null);
+		JSONArray linksArray = writer.writeLinksArray(mockModel);
+		assertThat(linksArray, is(notNullValue()));
+		assertThat(linksArray.length(), is(0));
+	}
+	
+	@Test
+	public void testWriteLinks_Empty() {
+		List<ILink<String>> emptySet = Collections.emptyList();
+		when(mockModel.getLinks()).thenReturn(emptySet);
+		JSONArray linksArray = writer.writeLinksArray(mockModel);
+		assertThat(linksArray, is(notNullValue()));
+		assertThat(linksArray.length(), is(0));
 	}
 	
 	private static boolean hasCategory(String category, int count, JSONArray categoryArray) {
