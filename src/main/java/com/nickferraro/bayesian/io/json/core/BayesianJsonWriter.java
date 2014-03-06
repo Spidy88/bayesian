@@ -118,7 +118,7 @@ public class BayesianJsonWriter implements IBayesianJsonWriter {
 				JSONObject wordObject = new JSONObject();
 				
 				// Add the word name and row count attributes
-				wordObject.put(KEY_CATEGORY, uniqueWord.toString());
+				wordObject.put(KEY_WORD, uniqueWord.toString());
 				wordObject.put(KEY_COUNT, model.countRowsWithWord(uniqueWord));
 				
 				// Add the word object to the word array
