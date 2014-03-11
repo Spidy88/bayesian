@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import com.nickferraro.bayesian.io.json.IBayesianJsonWriter;
 import com.nickferraro.bayesian.model.IBayesianModel;
 import com.nickferraro.bayesian.model.hashed.ILink;
-
+import static com.nickferraro.bayesian.io.json.core.BayesianJsonKeys.*;
 /**
  * A class for writing a bayesian model to output in json format. This class is thread-safe and can only
  * write a single bayesian model to output.
@@ -22,18 +22,6 @@ import com.nickferraro.bayesian.model.hashed.ILink;
  *
  */
 public class BayesianJsonWriter implements IBayesianJsonWriter {
-	public static final String KEY_ROWS_COUNT = "rows-count";
-	public static final String KEY_UNIQUE_CATEGORIES_COUNT = "unique-categories-count";
-	public static final String KEY_UNIQUE_WORDS_COUNT = "unique-words-count";
-	public static final String KEY_LINKS_COUNT = "links-count";
-	public static final String KEY_UNIQUE_CATEGORIES = "unique-categories";
-	public static final String KEY_UNIQUE_WORDS = "unique-words";
-	public static final String KEY_CATEGORY = "category";
-	public static final String KEY_WORD = "word";
-	public static final String KEY_LINKS = "links";
-	public static final String KEY_WEIGHT = "weight";
-	public static final String KEY_COUNT = "count";
-	
 	private final Writer writer;
 	private JSONObject bayesianObject;
 	
