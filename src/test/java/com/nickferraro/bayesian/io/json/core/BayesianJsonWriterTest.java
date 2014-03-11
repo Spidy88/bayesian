@@ -34,7 +34,7 @@ public class BayesianJsonWriterTest {
 	public void setup() {
 		mockModel = mock(IBayesianModel.class); 
 		stringWriter = new StringWriter();
-		writer = new BayesianJsonWriterHelper(stringWriter);
+		writer = new BayesianJsonWriter(stringWriter);
 	}
 	
 	@After
@@ -75,6 +75,28 @@ public class BayesianJsonWriterTest {
 		assertBayesianModelJson(writer.getJsonObject());
 	}
 	
+	@Test
+	public void testWriteModel_EmptyModel() throws IOException {
+		Set<String> categories = Collections.emptySet();
+		Set<String> words = Collections.emptySet();
+		List<ILink<String>> links = Collections.emptyList();
+		
+		when(mockModel.getUniqueCategories()).thenReturn(categories);
+		when(mockModel.getUniqueWords()).thenReturn(words);
+		when(mockModel.getLinks()).thenReturn(links);
+		
+		writer.writeModel(mockModel);
+		
+		JSONObject jsonObject = writer.getJsonObject();
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_ROWS_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_WORDS_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_LINKS_COUNT), is(0));
+		assertThat(jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES).length(), is(0));
+		assertThat(jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_WORDS).length(), is(0));
+		assertThat(jsonObject.getJSONArray(BayesianJsonKeys.KEY_LINKS).length(), is(0));
+	}
+	
 	@Test(expected = IOException.class)
 	public void testWriteModel_WriteTwice() throws IOException {
 		Set<String> categories = createCategories();
@@ -108,18 +130,18 @@ public class BayesianJsonWriterTest {
 		String jsonString = stringWriter.toString();
 		JSONObject jsonObject = new JSONObject(jsonString);
 		
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_ROWS_COUNT), is(0));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_UNIQUE_CATEGORIES_COUNT), is(0));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_UNIQUE_WORDS_COUNT), is(0));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_LINKS_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_ROWS_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_WORDS_COUNT), is(0));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_LINKS_COUNT), is(0));
 		
-		JSONArray categoriesArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_UNIQUE_CATEGORIES);
+		JSONArray categoriesArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES);
 		assertThat(categoriesArray.length(), is(0));
 		
-		JSONArray wordsArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_UNIQUE_WORDS);
+		JSONArray wordsArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_WORDS);
 		assertThat(wordsArray.length(), is(0));
 		
-		JSONArray linksArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_LINKS);
+		JSONArray linksArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_LINKS);
 		assertThat(linksArray.length(), is(0));
 	}
 	
@@ -177,8 +199,8 @@ public class BayesianJsonWriterTest {
 	private static boolean hasCategory(String category, int count, JSONArray categoryArray) {
 		for(int i = 0; i < categoryArray.length(); ++i ) {
 			JSONObject categoryObject = categoryArray.getJSONObject(i);
-			if( categoryObject.getString(BayesianJsonWriter.KEY_CATEGORY).equals(category) &&
-					categoryObject.getInt(BayesianJsonWriter.KEY_COUNT) == count ) {
+			if( categoryObject.getString(BayesianJsonKeys.KEY_CATEGORY).equals(category) &&
+					categoryObject.getInt(BayesianJsonKeys.KEY_COUNT) == count ) {
 				return true;
 			}
 		}
@@ -189,8 +211,8 @@ public class BayesianJsonWriterTest {
 	private static boolean hasWord(String word, int count, JSONArray wordArray) {
 		for(int i = 0; i < wordArray.length(); ++i ) {
 			JSONObject wordObject = wordArray.getJSONObject(i);
-			if( wordObject.getString(BayesianJsonWriter.KEY_WORD).equals(word) &&
-					wordObject.getInt(BayesianJsonWriter.KEY_COUNT) == count ) {
+			if( wordObject.getString(BayesianJsonKeys.KEY_WORD).equals(word) &&
+					wordObject.getInt(BayesianJsonKeys.KEY_COUNT) == count ) {
 				return true;
 			}
 		}
@@ -201,9 +223,9 @@ public class BayesianJsonWriterTest {
 	private static boolean hasLink(String category, String word, int weight, JSONArray linkArray) {
 		for(int i = 0; i < linkArray.length(); ++i ) {
 			JSONObject linkObject = linkArray.getJSONObject(i);
-			if( linkObject.getString(BayesianJsonWriter.KEY_CATEGORY).equals(category) &&
-					linkObject.getString(BayesianJsonWriter.KEY_WORD).equals(word) &&
-					linkObject.getInt(BayesianJsonWriter.KEY_WEIGHT) == weight ) {
+			if( linkObject.getString(BayesianJsonKeys.KEY_CATEGORY).equals(category) &&
+					linkObject.getString(BayesianJsonKeys.KEY_WORD).equals(word) &&
+					linkObject.getInt(BayesianJsonKeys.KEY_WEIGHT) == weight ) {
 				return true;
 			}
 		}
@@ -212,24 +234,24 @@ public class BayesianJsonWriterTest {
 	}
 	
 	private static void assertBayesianModelJson(JSONObject jsonObject) {
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_ROWS_COUNT), is(6));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_UNIQUE_CATEGORIES_COUNT), is(3));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_UNIQUE_WORDS_COUNT), is(3));
-		assertThat(jsonObject.getInt(BayesianJsonWriter.KEY_LINKS_COUNT), is(7));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_ROWS_COUNT), is(6));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES_COUNT), is(3));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_UNIQUE_WORDS_COUNT), is(3));
+		assertThat(jsonObject.getInt(BayesianJsonKeys.KEY_LINKS_COUNT), is(7));
 		
-		JSONArray categoriesArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_UNIQUE_CATEGORIES);
+		JSONArray categoriesArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_CATEGORIES);
 		assertThat(categoriesArray.length(), is(3));
 		assertThat(hasCategory("A", 2, categoriesArray), is(true));
 		assertThat(hasCategory("B", 2, categoriesArray), is(true));
 		assertThat(hasCategory("C", 2, categoriesArray), is(true));
 		
-		JSONArray wordsArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_UNIQUE_WORDS);
+		JSONArray wordsArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_UNIQUE_WORDS);
 		assertThat(wordsArray.length(), is(3));
 		assertThat(hasWord("x", 3, wordsArray), is(true));
 		assertThat(hasWord("y", 4, wordsArray), is(true));
 		assertThat(hasWord("z", 3, wordsArray), is(true));
 		
-		JSONArray linksArray = jsonObject.getJSONArray(BayesianJsonWriter.KEY_LINKS);
+		JSONArray linksArray = jsonObject.getJSONArray(BayesianJsonKeys.KEY_LINKS);
 		assertThat(linksArray.length(), is(7));
 		assertThat(hasLink("A", "x", 2, linksArray), is(true));
 		assertThat(hasLink("A", "y", 1, linksArray), is(true));
