@@ -412,6 +412,75 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 			readLock.unlock();
 		}
 	}
+	
+	public void setTotalRows(int totalRows) {
+		if( totalRows < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			this.totalRows = totalRows;
+		} finally {
+			writeLock.unlock();
+		}
+	}
+	
+	public void setCategoryCount(T category, int count) {
+		if( category == null || count < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addCategory(category);
+			categoryNodes.get(category).setCount(count);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+	
+	public void setWordCount(String word, int count) {
+		if( word == null || count < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addWord(word);
+			wordNodes.get(word).setCount(count);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+	public void setLinkWeight(T category, String word, int weight) {
+		if( category == null || word == null || weight < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addCategory(category);
+			_addWord(word);
+			CategoryNode<T> categoryNode = categoryNodes.get(category);
+			WordNode<T> wordNode = wordNodes.get(word);
+			Link<T> link = categoryNode.getLink(wordNode.getValue());
+			if( link == null ) {
+				link = new Link<T>(categoryNode, wordNode);
+				categoryNode.addLink(link);
+				wordNode.addLink(link);
+			}
+			
+			link.setWeight(weight);
+		} finally {
+			writeLock.unlock();
+		}
+	}
 
 	/**
 	 * Add a category to this model. This method is not thread-safe.
