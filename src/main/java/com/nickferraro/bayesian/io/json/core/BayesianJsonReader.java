@@ -24,7 +24,7 @@ import com.nickferraro.bayesian.model.IBayesianModel;
 import com.nickferraro.bayesian.model.hashed.BayesianModel;
 
 /**
- * 
+ * A bayesian model reader that uses JSON to parse a bayesian model.
  * @author Nick Ferraro
  *
  */
@@ -32,9 +32,9 @@ public class BayesianJsonReader implements IBayesianReader {
 	private final BufferedReader reader;
 	
 	/**
-	 * 
-	 * @param reader
-	 * @throws InvalidParameterException
+	 * Create a bayesian model json reader
+	 * @param reader The reader to use for reading a bayesian model
+	 * @throws InvalidParameterException Thrown when the reader is NULL.
 	 */
 	public BayesianJsonReader(Reader reader) throws InvalidParameterException {
 		if( reader == null ) {
@@ -67,6 +67,14 @@ public class BayesianJsonReader implements IBayesianReader {
 		reader.close();
 	}
 	
+	/**
+	 * Creates a hashed bayesian model from a json string. Uses the category parser to parse
+	 * categories back into their original class, enum, or primitive state.
+	 * @param parser A parser for turning categories from strings back into their origin class, enum, or primitive state
+	 * @param jsonString A string representing a hashed bayesian model
+	 * @return The rebuilt hashed bayesian model
+	 * @throws ParseException Thrown when the json string is invalid or attributes are missing
+	 */
 	protected <T> IBayesianModel<T> parseModel(ICategoryParser<T> parser, String jsonString) throws ParseException {
 		BayesianModel<T> model = new BayesianModel<T>();
 		JSONObject bayesianObject = new JSONObject(jsonString);
@@ -80,6 +88,13 @@ public class BayesianJsonReader implements IBayesianReader {
 		return model;
 	}
 	
+	/**
+	 * Read the categories section from the bayesian object and update the model
+	 * @param bayesianObject The bayesian object to use for reading categories
+	 * @param model The model to update with what has been read from the bayesian object
+	 * @param parser The parser to use for categories
+	 * @throws ParseException Thrown when the category parser encounters an issue
+	 */
 	protected <T> void readCategories(JSONObject bayesianObject, BayesianModel<T> model, ICategoryParser<T> parser) throws ParseException {
 		JSONArray categoriesArray = bayesianObject.getJSONArray(KEY_UNIQUE_CATEGORIES);
 		for( int i = 0; i < categoriesArray.length(); ++i ) {
@@ -91,7 +106,12 @@ public class BayesianJsonReader implements IBayesianReader {
 		}
 	}
 	
-	protected <T> void readWords(JSONObject bayesianObject, BayesianModel<T> model) throws ParseException {
+	/**
+	 * Read the words section from the bayesian object and update the model
+	 * @param bayesianObject The bayesian object to use for reading words
+	 * @param model The model to update with what has been read from the bayesian object
+	 */
+	protected <T> void readWords(JSONObject bayesianObject, BayesianModel<T> model) {
 		JSONArray wordsArray = bayesianObject.getJSONArray(KEY_UNIQUE_WORDS);
 		for( int i = 0; i < wordsArray.length(); ++i ) {
 			JSONObject wordObject = wordsArray.getJSONObject(i);
@@ -102,6 +122,13 @@ public class BayesianJsonReader implements IBayesianReader {
 		}
 	}
 	
+	/**
+	 * Read the links section from the bayesian object and update the model
+	 * @param bayesianObject The bayesian object to use for reading links
+	 * @param model The model to update with what has been read from the bayesian object
+	 * @param parser The parser to use for categories
+	 * @throws ParseException Thrown when the category parser encounters an issue
+	 */
 	protected <T> void readLinks(JSONObject bayesianObject, BayesianModel<T> model, ICategoryParser<T> parser) throws ParseException {
 		JSONArray linksArray = bayesianObject.getJSONArray(KEY_LINKS);
 		for( int i = 0; i < linksArray.length(); ++i ) {

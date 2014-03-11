@@ -1,5 +1,10 @@
 package com.nickferraro.bayesian.io.json.core;
 
+/**
+ * An interface to hold the json keys used for reading and writing a bayesian model
+ * @author Nick Ferraro
+ *
+ */
 public interface BayesianJsonKeys {
 	public static final String KEY_ROWS_COUNT = "rows-count";
 	public static final String KEY_UNIQUE_CATEGORIES_COUNT = "unique-categories-count";
