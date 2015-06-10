@@ -1,6 +1,7 @@
 package com.nickferraro.bayesian.model.hashed;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +28,8 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 	private Lock readLock = readWriteLock.readLock();
 	private Lock writeLock = readWriteLock.writeLock();
 	
-	private HashMap<T, CategoryNode<T>> categoryNodes = new HashMap<T, CategoryNode<T>>();
-	private HashMap<String, WordNode<T>> wordNodes = new HashMap<String, WordNode<T>>();
+	private final HashMap<T, CategoryNode<T>> categoryNodes = new HashMap<T, CategoryNode<T>>();
+	private final HashMap<String, WordNode<T>> wordNodes = new HashMap<String, WordNode<T>>();
 	private int totalRows = 0;
 	
 	/**
@@ -297,6 +298,33 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 	 * This method is thread-safe.
 	 */
 	@Override
+	public List<ILink<T>> getLinks() {
+		// Lock
+		readLock.lock();
+		
+		try {
+			// Create a list to aggregate links
+			List<ILink<T>> aggregatedLinks = new ArrayList<ILink<T>>();
+			
+			// Iterate over category nodes and aggregate links
+			Collection<CategoryNode<T>> categoryNodes = this.categoryNodes.values();
+			for(CategoryNode<T> categoryNode : categoryNodes ) {
+				Collection<Link<T>> links = categoryNode.getLinks();
+				aggregatedLinks.addAll(links);
+			}
+			
+			return aggregatedLinks;
+		} finally {
+			// Unlock
+			readLock.unlock();
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * This method is thread-safe.
+	 */
+	@Override
 	public int countRowsWithCategory(T category) {
 		// Validate category parameter
 		if( category == null ) {
@@ -382,6 +410,75 @@ public class BayesianModel<T> implements IBayesianModel<T> {
 		} finally {
 			// Unlock
 			readLock.unlock();
+		}
+	}
+	
+	public void setTotalRows(int totalRows) {
+		if( totalRows < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			this.totalRows = totalRows;
+		} finally {
+			writeLock.unlock();
+		}
+	}
+	
+	public void setCategoryCount(T category, int count) {
+		if( category == null || count < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addCategory(category);
+			categoryNodes.get(category).setCount(count);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+	
+	public void setWordCount(String word, int count) {
+		if( word == null || count < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addWord(word);
+			wordNodes.get(word).setCount(count);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+	public void setLinkWeight(T category, String word, int weight) {
+		if( category == null || word == null || weight < 0 ) {
+			return;
+		}
+		
+		writeLock.lock();
+		
+		try {
+			_addCategory(category);
+			_addWord(word);
+			CategoryNode<T> categoryNode = categoryNodes.get(category);
+			WordNode<T> wordNode = wordNodes.get(word);
+			Link<T> link = categoryNode.getLink(wordNode.getValue());
+			if( link == null ) {
+				link = new Link<T>(categoryNode, wordNode);
+				categoryNode.addLink(link);
+				wordNode.addLink(link);
+			}
+			
+			link.setWeight(weight);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 

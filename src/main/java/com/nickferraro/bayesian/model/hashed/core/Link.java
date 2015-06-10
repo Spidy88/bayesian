@@ -2,6 +2,8 @@ package com.nickferraro.bayesian.model.hashed.core;
 
 import java.security.InvalidParameterException;
 
+import com.nickferraro.bayesian.model.hashed.ILink;
+
 /**
  * This class represents a link between a CategoryNode and a WordNode.
  * The link has a weight that describes the strength between the two nodes.
@@ -9,7 +11,7 @@ import java.security.InvalidParameterException;
  *
  * @param <T> The category data type for this link
  */
-public class Link<T> {
+public class Link<T> implements ILink<T> {
 	private final CategoryNode<T> categoryNode;
 	private final WordNode<T> wordNode;
 	private int weight = 0;
@@ -43,6 +45,11 @@ public class Link<T> {
 	public CategoryNode<T> getCategoryNode() {
 		return this.categoryNode;
 	}
+	
+	@Override
+	public T getCategory() {
+		return this.categoryNode.getValue();
+	}
 
 	/**
 	 * Get the word node associated with this link.
@@ -51,11 +58,13 @@ public class Link<T> {
 	public WordNode<T> getWordNode() {
 		return this.wordNode;
 	}
+	
+	@Override
+	public String getWord() {
+		return this.wordNode.getValue();
+	}
 
-	/**
-	 * Get the weight associated with this link.
-	 * @return The weight of this link. Will always be a positive number (including 0).
-	 */
+	@Override
 	public int getWeight() {
 		return this.weight;
 	}

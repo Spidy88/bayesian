@@ -1,6 +1,7 @@
 package com.nickferraro.bayesian.model.hashed.core;
 
 import java.security.InvalidParameterException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -79,6 +80,14 @@ public class CategoryNode<T> {
 	 */
 	public Set<String> getLinkWords() {
 		return linksMap.keySet();
+	}
+	
+	/**
+	 * Get all the links associated with this node
+	 * @return A collection of links
+	 */
+	public Collection<Link<T>> getLinks() {
+		return linksMap.values();
 	}
 	
 	/**
